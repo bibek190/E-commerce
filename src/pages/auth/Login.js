@@ -26,17 +26,17 @@ function Login() {
       required: true,
     },
     {
-      id: 2,
-      label: "Password",
-      type: "password",
-      name: "Password",
-      required: true,
-    },
-    {
       id: 3,
       label: "Email",
       type: "email",
       name: "Email",
+      required: true,
+    },
+    {
+      id: 2,
+      label: "Password",
+      type: "password",
+      name: "Password",
       required: true,
     },
   ];
