@@ -4,9 +4,15 @@ import CustomInput from "../../components/custom-input/CustomInput";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import { useState } from "react";
+import AdminLayout from "../../components/layout/AdminLayout";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createNewAdminUser } from "../../redux/auth/userAction";
+import { useDispatch, useSelector } from "react-redux";
 
 function Register() {
   const [form, setForm] = useState({});
+  const dispatch = useDispatch();
+  const { progress, success, error } = useSelector((state) => state.userInfo);
 
   const handleOnChange = (e) => {
     const { value, name } = e.target;
@@ -14,63 +20,71 @@ function Register() {
   };
   const handleOnSubmit = (e) => {
     e.preventDefault();
-    console.log(form);
+    dispatch(createNewAdminUser(form));
   };
 
-  const input = [
+  const inputFields = [
     {
       id: 1,
-      label: "First Name",
+      label: "First Name *",
       type: "text",
       name: "fName",
       required: true,
     },
     {
       id: 5,
-      label: "Last Name",
+      label: "Last Name *",
       type: "text",
       name: "lName",
       required: true,
     },
     {
       id: 2,
-      label: "Email",
+      label: "Email *",
       type: "email",
-      name: "Email",
+      name: "email",
       required: true,
     },
     {
       id: 3,
-      label: "Password",
+      label: "Password *",
       type: "password",
-      name: "Password",
+      name: "password",
+      required: true,
+    },
+
+    {
+      id: 4,
+      label: "Confirm Password *",
+      type: "password",
+      name: "confirmPassword",
       required: true,
     },
     {
-      id: 2,
-      label: "Confirm Password",
-      type: "password",
-      name: "ConfirmPassword",
-      required: true,
+      id: 6,
+      label: "Phone",
+      type: "number",
+      name: "phone",
     },
   ];
   return (
     <>
-      <Header />
-      <main className="main">
+      <AdminLayout title="Register Admin">
+        {progress && "Loading...."}
+        {error && "Error...."}
+        {success && "success...."}
         <Form
-          className="login p-5 mt-5 border rounded shadow "
+          className="login p-4 mt-3 border rounded shadow "
           onSubmit={handleOnSubmit}
         >
-          {input.map((item, i) => (
+          {inputFields.map((item, i) => (
             <CustomInput {...item} key={i} onChange={handleOnChange} />
           ))}
           <Button variant="primary" type="submit">
             Submit
           </Button>
         </Form>
-      </main>
-      <Footer />
+      </AdminLayout>
     </>
   );
 }

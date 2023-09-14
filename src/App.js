@@ -13,24 +13,92 @@ import Customers from "./pages/customers/Customers";
 import Review from "./pages/review/Review";
 
 import "bootstrap/dist/css/bootstrap.min.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import PrivateRoute from "./components/private-route/PrivateRoute";
 
 function App() {
   return (
     <div className="App">
+      <ToastContainer />
       <Routes>
         {/* Public */}
         <Route path="/" element={<Login />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         {/* Private Routes */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/category" element={<Category />} />
-        <Route path="/product" element={<Product />} />
-        <Route path="/payment-option" element={<PaymentOption />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<Order />} />
-        <Route path="/customers" element={<Customers />} />
-        <Route path="/review" element={<Review />} />
+
+        <Route
+          path="/register"
+          element={
+            <PrivateRoute>
+              <Register />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/category"
+          element={
+            <PrivateRoute>
+              <Category />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/product"
+          element={
+            <PrivateRoute>
+              <Product />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/payment-option"
+          element={
+            <PrivateRoute>
+              <PaymentOption />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <PrivateRoute>
+              <Order />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <PrivateRoute>
+              <Customers />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/review"
+          element={
+            <PrivateRoute>
+              <Review />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </div>
   );

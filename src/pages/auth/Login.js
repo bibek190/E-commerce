@@ -3,10 +3,16 @@ import Form from "react-bootstrap/Form";
 import CustomInput from "../../components/custom-input/CustomInput";
 import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginAdminUser } from "../../redux/auth/userAction";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [form, setForm] = useState({});
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.userInfo);
+  const navigate = useNavigate();
 
   const handleOnChange = (e) => {
     const { value, name } = e.target;
@@ -15,28 +21,28 @@ function Login() {
   const handleOnSubmit = (e) => {
     e.preventDefault();
     console.log(form);
+    dispatch(loginAdminUser(form));
   };
+
+  useEffect(() => {
+    if (user.uid) {
+      navigate("/dashboard");
+    }
+  }, [user]);
 
   const input = [
     {
       id: 1,
-      label: "First Name",
-      type: "text",
-      name: "fName",
-      required: true,
-    },
-    {
-      id: 3,
       label: "Email",
       type: "email",
-      name: "Email",
+      name: "email",
       required: true,
     },
     {
       id: 2,
       label: "Password",
       type: "password",
-      name: "Password",
+      name: "password",
       required: true,
     },
   ];
