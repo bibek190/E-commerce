@@ -1,9 +1,9 @@
 import React from "react";
-import Header from "./Header";
 import Footer from "./Footer";
+import Header from "./Header";
 import Sidebar from "./Sidebar";
 
-const AdminLayout = ({ children, title }) => {
+function AdminLayout({ children, title }) {
   return (
     <div>
       <div className="admin-layout d-flex">
@@ -12,7 +12,7 @@ const AdminLayout = ({ children, title }) => {
         </div>
         <div className="right w-75">
           <Header />
-          <h1 className="px-3 pt-3">{title}</h1>
+          <h2 className="px-3 pt-3">{title}</h2>
           <hr />
           <main className="main">{children}</main>
           <Footer />
@@ -20,6 +20,6 @@ const AdminLayout = ({ children, title }) => {
       </div>
     </div>
   );
-};
+}
 
 export default AdminLayout;

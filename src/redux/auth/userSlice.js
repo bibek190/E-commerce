@@ -6,7 +6,6 @@ const initialState = {
   error: false,
   success: false,
 };
-
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -21,6 +20,8 @@ const userSlice = createSlice({
     },
   },
 });
+
 const { actions, reducer } = userSlice;
+
 export const { setUser, updateStatus } = actions;
 export default reducer;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Sidebar = () => {
+function Sidebar() {
   const sideLinks = [
     {
       label: "Dashboard",
@@ -16,20 +16,20 @@ const Sidebar = () => {
       path: "/product",
     },
     {
-      label: "Review",
-      path: "/review",
+      label: "Payment Opt",
+      path: "/payment-options",
     },
     {
-      label: "Payment opt",
-      path: "/payment-option",
-    },
-    {
-      label: "orders",
+      label: "Orders",
       path: "/orders",
     },
     {
-      label: "customers",
+      label: "Customers",
       path: "/customers",
+    },
+    {
+      label: "Reviews",
+      path: "/reviews",
     },
   ];
   return (
@@ -37,23 +37,23 @@ const Sidebar = () => {
       <nav>
         <div className="mt-4 text-center">Admin Account</div>
         <hr />
-        <div>
+        <div className="">
           <ul className="list-unstyled">
             {sideLinks.map(({ label, path }, i) => (
-              <li className="ms-4 p-3" key={i}>
-                <Link to={path} className="nav-link">
+              <li className="ms-2 p-2" key={i}>
+                <Link className="nav-link" to={path}>
                   {label}
                 </Link>
               </li>
             ))}
             <hr />
-            <li className="ms-4 p-3">
-              <Link to={"/profile"} className="nav-link">
+            <li className="ms-2 p-2">
+              <Link className="nav-link" to={"/profile"}>
                 Profile
               </Link>
             </li>
-            <li className="ms-4 p-3">
-              <Link to={"/register"} className="nav-link">
+            <li className="ms-2 p-2">
+              <Link className="nav-link" to={"/register"}>
                 Admin Register
               </Link>
             </li>
@@ -62,6 +62,6 @@ const Sidebar = () => {
       </nav>
     </div>
   );
-};
+}
 
 export default Sidebar;
