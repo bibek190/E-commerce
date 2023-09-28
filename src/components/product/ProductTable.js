@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { fetchProductsAction } from "../../redux/product/productAction";
 
 function ProductTable() {
@@ -36,6 +37,7 @@ function ProductTable() {
         <thead>
           <tr>
             <th>#</th>
+            <th>Thumbnail</th>
             <th>Status</th>
             <th>Title</th>
             <th>Slug</th>
@@ -50,6 +52,9 @@ function ProductTable() {
               <tr key={product.slug}>
                 <td>{i + 1}</td>
                 <td>
+                  <img src={product.thumbnail} width="150px" />
+                </td>
+                <td>
                   <span className={product.status}>{product.status}</span>
                 </td>
                 <td>{product.title}</td>
@@ -57,7 +62,9 @@ function ProductTable() {
                 <td>{`$${product.price}`}</td>
                 <td>{product.quantity}</td>
                 <td>
-                  <Button variant="warning">Edit</Button>
+                  <Link to={`/product/edit/${product.slug}`}>
+                    <Button variant="warning">Edit</Button>
+                  </Link>
                 </td>
               </tr>
             );

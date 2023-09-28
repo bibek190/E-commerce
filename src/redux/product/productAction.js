@@ -22,6 +22,7 @@ export const addProductAction =
         error: "Error...",
         success: "Successfully Saved",
       });
+      await productPromise;
       dispatch(fetchProductsAction());
     } catch (e) {
       console.log("error", e);

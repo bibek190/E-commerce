@@ -6,7 +6,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import PrivateRoute from "./components/private-route/PrivateRoute";
-import AddNewProduct from "./pages/product/AddNewProduct";
 import { auth } from "./firebase-config";
 import ForgetPassword from "./pages/auth/ForgetPassword";
 import Login from "./pages/auth/Login";
@@ -16,6 +15,8 @@ import Customers from "./pages/customers/Customers";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Orders from "./pages/order/Orders";
 import PaymentOptions from "./pages/payment-options/PaymentOptions";
+import AddNewProduct from "./pages/product/AddNewProduct";
+import EditProduct from "./pages/product/EditProduct";
 import Product from "./pages/product/Product";
 import Profile from "./pages/profile/Profile";
 import Reviews from "./pages/review/Reviews";
@@ -73,6 +74,14 @@ function App() {
           element={
             <PrivateRoute>
               <AddNewProduct />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/product/edit/:slug"
+          element={
+            <PrivateRoute>
+              <EditProduct />
             </PrivateRoute>
           }
         />

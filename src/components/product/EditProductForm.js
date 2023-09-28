@@ -1,23 +1,45 @@
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, ProgressBar } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import slugify from "slugify";
+import { useNavigate, useParams } from "react-router-dom";
 import { storage } from "../../firebase-config";
-import { addProductAction } from "../../redux/product/productAction";
+import {
+  addProductAction,
+  deleteProductAction,
+} from "../../redux/product/productAction";
 import CustomInput from "../custom-input/CustomInput";
 
-function NewProductForm() {
+function EditProductForm() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { slug } = useParams();
 
   const { categoryList } = useSelector((state) => state.category);
+  const { productList } = useSelector((state) => state.product);
   const [form, setForm] = useState({
     status: "inactive",
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [progress, setProgress] = useState(0);
+  const [imgToRemove, setImgToRemove] = useState([]);
+  useEffect(() => {
+    const prodInfo = productList.find((p) => p.slug == slug);
+    if (!prodInfo) {
+      return navigate("/product");
+    }
+    setForm(prodInfo);
+  }, [slug, productList]);
+
   const handleOnChange = (e) => {
     let { name, value, checked } = e.target;
+
+    if (name === "thumbnail") {
+      if (imgToRemove.includes(value)) {
+        return alert("Thumbnail can't be deleted, change the thumbnail first");
+      }
+    }
+
     if (name === "status") {
       value = checked ? "active" : "inactive";
     }
@@ -30,6 +52,16 @@ function NewProductForm() {
   const handleOnImageAttached = (e) => {
     let { files } = e.target;
     setUploadedFiles([...files]);
+  };
+
+  const selectOnImgDelete = (e) => {
+    const { checked, value } = e.target;
+    if (checked) {
+      setImgToRemove([...imgToRemove, value]);
+    } else {
+      const filteredRemoveList = imgToRemove.filter((img) => img !== value);
+      setImgToRemove(filteredRemoveList);
+    }
   };
 
   const handleFileUpload = async (imgDetail) => {
@@ -50,7 +82,6 @@ function NewProductForm() {
           // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
           setProgress(progress);
         },
         (error) => {
@@ -61,72 +92,32 @@ function NewProductForm() {
           // Handle successful uploads on complete
           // For instance, get the download URL: https://firebasestorage.googleapis.com/...
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
             resolve(downloadURL);
           });
         }
       );
     });
   };
-  //   const handleFileUpload = async (imgDetail) => {
-  //     return new Promise((resolve, reject) => {
-  //       const uniqueFileName = `${Date.now()}-${imgDetail.name}`;
-  //       // const uniqueFileName = imgDetail.name;
-  //       // const storageRef = ref(storage, "images/rivers.jpg");
-  //       const storageRef = ref(storage, `products/img/${uniqueFileName}`);
 
-  //       const uploadTask = uploadBytesResumable(storageRef, imgDetail);
-  //       uploadTask.on(
-  //         "state_changed",
-  //         (snapshot) => {
-  //           // Observe state change events such as progress, pause, and resume
-  //           // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-  //           const progress =
-  //             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //           console.log("Upload is " + progress + "% done");
-  //         },
-  //         (error) => {
-  //           console.log(error);
-  //           toast.error(error.message);
-  //           reject(error);
-  //         },
-  //         () => {
-  //           // Handle successful uploads on complete
-  //           // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-  //           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-  //             console.log("File available at", downloadURL);
-  //             resolve(downloadURL);
-  //           });
-  //         }
-  //       );
-  //     });
-  //   };
+  const handleOnDelete = () => {
+    if (window.confirm("Are you sure?")) {
+      dispatch(deleteProductAction(slug));
+    }
+  };
   const handleOnSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
-    const slug = slugify(form.title, {
-      lower: true,
-      trim: true,
-    });
-
-    // 1. Add a new field to capture files/images from computer
-    // 2. Update it to Storage
-
-    // we have file info in img state
-    // let url;
-    // try {
-    //   url = await handleFileUpload(uploadedFiles[0]);
-    // } catch (e) {
-    //   console.log("Error", e);
-    // }
+    if (imgToRemove.includes(form.thumbnail)) {
+      return alert("You can not delete thumbnail");
+    }
     const urlPromises = uploadedFiles.map((file) => handleFileUpload(file));
     const urls = await Promise.all(urlPromises);
 
-    // 3. Grab the URL
-    // 5. Update teh productObj with URL then you save on DB
-
-    const productObj = { ...form, slug, images: urls, thumbnail: urls[0] };
-    console.log("I am saving value to db", productObj);
+    // We have list of images to remove
+    const filteredList = form.images.filter(
+      (img) => !imgToRemove.includes(img)
+    );
+    const finalImgList = [...filteredList, ...urls];
+    const productObj = { ...form, images: finalImgList };
     dispatch(addProductAction(productObj));
   };
   const inputFields = [
@@ -136,6 +127,15 @@ function NewProductForm() {
       type: "text",
       placeholder: "Mobile Phone",
       required: true,
+      value: form.title,
+    },
+    {
+      label: "Slug",
+      name: "slug",
+      type: "text",
+      required: true,
+      value: form.slug,
+      disabled: true,
     },
     {
       label: "SKU",
@@ -143,6 +143,8 @@ function NewProductForm() {
       type: "text",
       placeholder: "MS_SJI_DSF",
       required: true,
+      value: form.sku,
+      disabled: true,
     },
 
     {
@@ -151,6 +153,7 @@ function NewProductForm() {
       type: "number",
       placeholder: "22",
       required: true,
+      value: form.price,
     },
     {
       label: "Quantity",
@@ -158,6 +161,7 @@ function NewProductForm() {
       type: "number",
       placeholder: "99",
       required: true,
+      value: form.quantity,
     },
     {
       label: "Sales Price",
@@ -165,16 +169,19 @@ function NewProductForm() {
       type: "number",
       placeholder: "99.99",
       required: true,
+      value: form.salesPrice,
     },
     {
       label: "Sales Start From",
       name: "salesStartAt",
       type: "date",
+      value: form.salesStartAt,
     },
     {
       label: "Sales End At",
       name: "salesEndAt",
       type: "date",
+      value: form.salesEndAt,
     },
     {
       label: "Product Description",
@@ -184,6 +191,7 @@ function NewProductForm() {
       placeholder: "Mobile Phone",
       required: true,
       rows: 5,
+      value: form.description,
     },
   ];
   return (
@@ -197,6 +205,7 @@ function NewProductForm() {
             type="switch"
             label="Status"
             name="status"
+            checked={form.status == "active"}
             onChange={handleOnChange}
           />
         </Form.Group>
@@ -208,21 +217,54 @@ function NewProductForm() {
             <option>Open this select menu</option>
             {categoryList.map((cat, i) => {
               return (
-                <option value={cat.slug} key={i}>
+                <option
+                  value={cat.slug}
+                  key={i}
+                  selected={cat.slug === form.parentCategory}
+                >
                   {cat.name}
                 </option>
               );
             })}
+            {/* <option value={"asd"} selected>
+              TestMe
+            </option> */}
             {/* <option value="1">One</option>
             <option value="2">Two</option>
             <option value="3">Three</option> */}
           </Form.Select>
         </Form.Group>
 
-        {inputFields.map((item, i) => (
-          <CustomInput {...item} key={i} onChange={handleOnChange} />
+        {inputFields.map((item) => (
+          <CustomInput {...item} onChange={handleOnChange} />
         ))}
 
+        <div className="d-flex p-1 gap-2 border rounded">
+          {form?.images?.length > 0 &&
+            form?.images?.map((img) => (
+              <div>
+                <div>
+                  <input
+                    type="radio"
+                    id="thumbnail"
+                    name="thumbnail"
+                    value={img}
+                    checked={img === form.thumbnail}
+                    onChange={handleOnChange}
+                  />
+                  <label htmlFor="thumbnail">Thumbnail</label>
+                </div>
+                <img src={img} width={"150px"} />
+                <div>
+                  <Form.Check
+                    label="Delete"
+                    onChange={selectOnImgDelete}
+                    value={img}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
         {/* Image Uploaded */}
         <Form.Group className="mb-3">
           <Form.Control
@@ -234,11 +276,16 @@ function NewProductForm() {
           <ProgressBar animated now={progress} />
         </Form.Group>
         <Button variant="primary" type="submit">
-          Submit
+          Update
         </Button>
+        <div className="mt-2">
+          <Button variant="danger" onClick={handleOnDelete}>
+            Delete
+          </Button>
+        </div>
       </Form>
     </div>
   );
 }
 
-export default NewProductForm;
+export default EditProductForm;
